@@ -7,10 +7,9 @@ using Microsoft.AspNetCore.Http;
 using ImageGallery.Client.Services;
 using System.Security.Claims;
 using System.Linq;
-using Microsoft.AspNetCore.Authentication;
 using System.Threading.Tasks;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ImageGallery.Client
 {
@@ -35,6 +34,15 @@ namespace ImageGallery.Client
         {
             // Add framework services.
             services.AddMvc();
+
+            services.AddAuthorization((options) => {
+                options.AddPolicy("CanOrderFrame", policybuilder =>
+                {
+                    policybuilder.RequireAuthenticatedUser();
+                    policybuilder.RequireClaim("subscriptionlevel", "PayingUser");
+                    policybuilder.RequireClaim("country", "be");
+                });
+            });
 
             // register an IHttpContextAccessor so we can access the current
             // HttpContext in services by injecting it
@@ -62,6 +70,8 @@ namespace ImageGallery.Client
                 options.Scope.Add("roles");
                 options.Scope.Add("courses");
                 options.Scope.Add("imagegalleryapi");
+                options.Scope.Add("subscriptionlevel");
+                options.Scope.Add("country");
 
                 options.ResponseType = "code id_token";
                 options.GetClaimsFromUserInfoEndpoint = true;

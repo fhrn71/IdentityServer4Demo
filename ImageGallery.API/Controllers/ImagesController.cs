@@ -39,14 +39,9 @@ namespace ImageGallery.API.Controllers
             return Ok(imagesToReturn);
         }
 
-        [HttpGet("{id}", Name = "GetImage")]
+        [HttpGet("{id}", Name = "GetImage"), Authorize("MustOwnImage")]
         public IActionResult GetImage(Guid id)
         {
-            if (!IsOwner(id))
-            {
-                return Unauthorized();
-            }
-
             var imageFromRepo = _galleryRepository.GetImage(id);
 
             if (imageFromRepo == null)
@@ -111,7 +106,7 @@ namespace ImageGallery.API.Controllers
                 imageToReturn);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), Authorize("MustOwnImage")]
         public IActionResult DeleteImage(Guid id)
         {
             var imageFromRepo = _galleryRepository.GetImage(id);
@@ -131,7 +126,7 @@ namespace ImageGallery.API.Controllers
             return NoContent();
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}"), Authorize("MustOwnImage")]
         public IActionResult UpdateImage(Guid id, 
             [FromBody] ImageForUpdate imageForUpdate)
         {           
@@ -144,11 +139,6 @@ namespace ImageGallery.API.Controllers
             {
                 // return 422 - Unprocessable Entity when validation fails
                 return new UnprocessableEntityObjectResult(ModelState);
-            }
-
-            if (!IsOwner(id))
-            {
-                return Unauthorized();
             }
 
             var imageFromRepo = _galleryRepository.GetImage(id);
@@ -167,12 +157,6 @@ namespace ImageGallery.API.Controllers
             }
 
             return NoContent();
-        }
-
-        private bool IsOwner(Guid imageId)
-        {
-            string ownerId = User.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
-            return _galleryRepository.IsOwnerOfImage(imageId, ownerId);
         }
     }
 }

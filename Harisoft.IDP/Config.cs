@@ -26,7 +26,9 @@ namespace Harisoft.IDP
                         new Claim("family_name", "Underwood"),
                         new Claim("address", "1, Main Road"),
                         new Claim("role", "FreeUser"),
-                        new Claim("course", "English")
+                        new Claim("course", "English"),
+                        new Claim("subscriptionlevel", "FreeUser"),
+                        new Claim("country", "be")
                     }
                 },
                 new TestUser
@@ -40,7 +42,9 @@ namespace Harisoft.IDP
                         new Claim("family_name", "Underwood"),
                         new Claim("address", "2, Big Street"),
                         new Claim("role", "PayingUser"),
-                        new Claim("course", "French")
+                        new Claim("course", "French"),
+                        new Claim("subscriptionlevel", "PayingUser"),
+                        new Claim("country", "nl")
                     }
                 }
             };
@@ -58,8 +62,10 @@ namespace Harisoft.IDP
                new IdentityResources.OpenId(),
                new IdentityResources.Profile(),
                new IdentityResources.Address(),
-               new IdentityResource("courses", "Your course(s)", new List<string>{"course"}),
-               new IdentityResource("roles", "Your role(s)", new List<string>{"role"})
+               new IdentityResource("courses", "Your course(s)", new []{"course"}),
+               new IdentityResource("roles", "Your role(s)", new []{"role"}),
+               new IdentityResource("subscriptionlevel", "Your subscription level", new[]{"subscriptionlevel"}),
+               new IdentityResource("country", "Your country", new[]{"country" })
             };
         }
 
@@ -84,7 +90,9 @@ namespace Harisoft.IDP
                         IdentityServerConstants.StandardScopes.Address,
                         "roles",
                         "courses",
-                        "imagegalleryapi"
+                        "imagegalleryapi",
+                        "subscriptionlevel",
+                        "country"
                     },
                     ClientSecrets = new List<Secret>
                     {

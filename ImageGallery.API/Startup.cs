@@ -1,6 +1,8 @@
 ﻿using IdentityServer4.AccessTokenValidation;
+using ImageGallery.API.Authorization;
 using ImageGallery.API.Entities;
 using ImageGallery.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -31,6 +33,22 @@ namespace ImageGallery.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddAuthorization((options) => {
+                options.AddPolicy("CanOrderFrame", policybuilder =>
+                {
+                    policybuilder.RequireAuthenticatedUser();
+                    policybuilder.RequireClaim("subscriptionlevel", "PayingUser");
+                    policybuilder.RequireClaim("country", "be");
+                });
+                options.AddPolicy("MustOwnImage", policybuilder =>
+                {
+                    policybuilder.RequireAuthenticatedUser();
+                    policybuilder.Requirements = new[] { new MustOwnImageRequirement() };
+                });
+            });
+
+            services.AddSingleton<IAuthorizationHandler, MustOwnImageHandler>();
+
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
             .AddIdentityServerAuthentication(options =>
             {
