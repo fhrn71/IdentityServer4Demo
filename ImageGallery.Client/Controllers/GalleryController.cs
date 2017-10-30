@@ -123,6 +123,7 @@ namespace ImageGallery.Client.Controllers
             {
                 case HttpStatusCode.OK:
                 case HttpStatusCode.NoContent:
+                case HttpStatusCode.Created:
                     {
                         return onSuccess();
                     }
@@ -180,10 +181,53 @@ namespace ImageGallery.Client.Controllers
 
         public async Task Logout()
         {
+            // get the metadata
+            var discoveryClient = new DiscoveryClient("https://localhost:44373/");
+            var metaDataResponse = await discoveryClient.GetAsync();
+
+            // get revocation client
+            var revocationClient = new TokenRevocationClient(metaDataResponse.RevocationEndpoint, "imagegalleryclient", "ItsMySecret");
+
+            await RevokeAccessToken(revocationClient);
+            await RevokeRefreshToken(revocationClient);
+
+            // sign-out of authentication schemes
             await HttpContext.SignOutAsync("Cookies");
             await HttpContext.SignOutAsync("oidc");
         }
-        
+
+        private async Task RevokeAccessToken(TokenRevocationClient revocationClient)
+        {
+            // get access token
+            var accessToken = await HttpContext.GetTokenAsync(OpenIdConnectParameterNames.AccessToken);
+
+            if (!string.IsNullOrWhiteSpace(accessToken))
+            {
+                // revoke access token
+                var revokeAccessTokenResponse = await revocationClient.RevokeAccessTokenAsync(accessToken);
+                if (revokeAccessTokenResponse.IsError)
+                {
+                    throw new Exception("Error occurred during revocation of access token", revokeAccessTokenResponse.Exception);
+                }
+            }
+        }
+
+        private async Task RevokeRefreshToken(TokenRevocationClient revocationClient)
+        {
+            // get refresh token
+            var refreshToken = await HttpContext.GetTokenAsync(OpenIdConnectParameterNames.RefreshToken);
+
+            if (!string.IsNullOrWhiteSpace(refreshToken))
+            {
+                // revoke refresh token
+                var revokeRefreshTokenResponse = await revocationClient.RevokeRefreshTokenAsync(refreshToken);
+                if (revokeRefreshTokenResponse.IsError)
+                {
+                    throw new Exception("Error occurred during revocation of refresh token", revokeRefreshTokenResponse.Exception);
+                }
+            }
+        }
+
         public async Task WriteOutIdentityInformation()
         {
             var identityToken = await HttpContext.GetTokenAsync(OpenIdConnectParameterNames.IdToken);

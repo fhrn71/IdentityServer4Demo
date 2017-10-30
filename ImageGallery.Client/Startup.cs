@@ -40,7 +40,7 @@ namespace ImageGallery.Client
                 {
                     policybuilder.RequireAuthenticatedUser();
                     policybuilder.RequireClaim("subscriptionlevel", "PayingUser");
-                    policybuilder.RequireClaim("country", "be");
+                    policybuilder.RequireClaim("country", "nl");
                 });
             });
 
@@ -72,6 +72,7 @@ namespace ImageGallery.Client
                 options.Scope.Add("imagegalleryapi");
                 options.Scope.Add("subscriptionlevel");
                 options.Scope.Add("country");
+                options.Scope.Add("offline_access");
 
                 options.ResponseType = "code id_token";
                 options.GetClaimsFromUserInfoEndpoint = true;
@@ -88,11 +89,11 @@ namespace ImageGallery.Client
                         var identity = tokenValidatedContext.Principal.Identity
                             as ClaimsIdentity;
 
-                        var targetClaims = identity.Claims.Where(z => new[] { "role", "sub" }.Contains(z.Type));
+                        var targetClaims = identity.Claims.Where(z => new[] { "subscriptionlevel","country","role", "sub" }.Contains(z.Type));
 
                         var newClaimsIdentity = new ClaimsIdentity(
                           targetClaims,
-                          ClaimTypes.Authentication,
+                          identity.AuthenticationType,
                           "given_name",
                           "role");
 

@@ -52,7 +52,10 @@ namespace Harisoft.IDP
 
         internal static IEnumerable<ApiResource> GetApiResources()
         {
-            return new[] { new ApiResource("imagegalleryapi", "Image Gallery API", new[] { "role" }) };
+            return new[] {
+                new ApiResource("imagegalleryapi", "Image Gallery API", new[] { "role" }) {
+                    ApiSecrets = new[] { new Secret("apisecret".Sha256()) } }
+            };
         }
 
         public static List<IdentityResource> GetIdentityResources()
@@ -78,6 +81,9 @@ namespace Harisoft.IDP
                     ClientName = "ImageGallery",
                     ClientId="imagegalleryclient",
                     AllowedGrantTypes = GrantTypes.Hybrid,
+                    AccessTokenType = AccessTokenType.Reference,
+                    UpdateAccessTokenClaimsOnRefresh = true,
+                    AllowOfflineAccess = true,
                     RedirectUris =new List<string>
                     {
                         "https://localhost:44389/signin-oidc"

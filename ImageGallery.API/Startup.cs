@@ -38,7 +38,7 @@ namespace ImageGallery.API
                 {
                     policybuilder.RequireAuthenticatedUser();
                     policybuilder.RequireClaim("subscriptionlevel", "PayingUser");
-                    policybuilder.RequireClaim("country", "be");
+                    policybuilder.RequireClaim("country", "nl");
                 });
                 options.AddPolicy("MustOwnImage", policybuilder =>
                 {
@@ -55,6 +55,7 @@ namespace ImageGallery.API
                 options.Authority = "https://localhost:44373";
                 options.RequireHttpsMetadata = true;
                 options.ApiName = "imagegalleryapi";
+                options.ApiSecret = "apisecret";
             });
 
             // register the DbContext on the container, getting the connection string from
