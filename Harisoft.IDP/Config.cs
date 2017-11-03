@@ -82,6 +82,7 @@ namespace Harisoft.IDP
                     ClientId="imagegalleryclient",
                     AllowedGrantTypes = GrantTypes.Hybrid,
                     AccessTokenType = AccessTokenType.Reference,
+                    RequireConsent = false,
                     UpdateAccessTokenClaimsOnRefresh = true,
                     AllowOfflineAccess = true,
                     RedirectUris =new List<string>
